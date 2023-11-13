@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Board</title>
+</head>
+<body>
+
+  <h1>Game Board</h1>
+
+  <form method="post" action="{% url 'game:create_game' %}">
+    {% csrf_token %}
+
+    <table>
+      {% for row in board %}
+        <tr>
+          {% for item in row %}
+            <td>{{ item }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
+  </form>
+
+  <form action="{% url 'game:display_and_play_game' name='1' %}" method="post">
+      {% csrf_token %}
+      <button name="button_id" value="player1">Player 1</button>
+  </form>
+
+  <form action="{% url 'game:display_and_play_game' name='2' %}" method="post">
+      {% csrf_token %}
+      <button name="button_id" value="player2">Player 2</button>
+  </form>
+  <p>Player 1 Score {{ players.0.score }}</p>
+  <p>Player 2 Score {{ players.1.score }}</p>
+
+</body>
+</html>
