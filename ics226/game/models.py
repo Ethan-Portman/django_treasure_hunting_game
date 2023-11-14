@@ -49,31 +49,3 @@ class Board(models.Model):
 
 
 
-# class Player(models.Model):
-#     tag = models.CharField(max_length=1)
-#     row = models.IntegerField()
-#     col = models.IntegerField()
-#
-#     @classmethod
-#     def create_player(cls):
-#         model = cls(tag='A', row=0, col=0)
-#         return model
-#
-#     def __str__(self):
-#         return f'{self.tag} @({self.row}, {self.col})'
-
-
-
-
-
-# class Board(models.Model):
-#     label = models.CharField(max_length=1)
-#     row = models.IntegerField()
-#     column = models.IntegerField()
-#     value = models.CharField(max_length=5)
-#
-#     @classmethod
-#     def create_board(cls, row, col):
-#         model = cls(label='.', row=row, column=col, value='5')
-#         return model
-

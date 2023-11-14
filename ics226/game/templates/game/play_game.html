@@ -23,7 +23,7 @@
     </table>
   </form>
 
-  <form action="{% url 'game:move_player' %}" method="post">
+  <form action="{% url 'game:attempt_to_move_player' %}" method="post">
       {% csrf_token %}
         <input type="hidden" name="player_name" value="{{ curr_player.name }}">
         <button type="submit" name="direction" value="UP">Up</button>

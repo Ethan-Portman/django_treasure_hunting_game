@@ -1,13 +1,9 @@
 # game/views.py
-from itertools import groupby
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
+from django.http import HttpResponse
 from .models import Board, Player
 from django.db import transaction
 from random import randint
-from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView, UpdateView
 from .constants import board_length, num_treasures, min_treasure, max_treasure, num_players, player_one_name, player_two_name
 
 
@@ -86,34 +82,63 @@ def display_and_play_game(request, name):
 
 """ ------------------ Moving a Player ------------------- """
 
-def move_player(request):
 
-    # Get the current player
-    player = Player.objects.get(name=request.POST.get('player_name'))
+def validate_movement(player, direction, board) -> bool:
     curr_row, curr_col = player.row, player.col
 
-    # Update the player's position based on the direction
-    if request.POST.get('direction') == 'UP':
-        player.row += 1
-    elif request.POST.get('direction') == 'DOWN':
-        player.row -= 1
+    match direction:
+        case 'UP':
+            if curr_row - 1 < 0 or board[curr_row - 1][curr_col].player is not None:
+                return False
+        case 'DOWN':
+            if curr_row + 1 > board_length - 1 or board[curr_row + 1][curr_col].player is not None:
+                return False
+        case 'LEFT':
+            if curr_col- 1 < 0 or board[curr_row][curr_col - 1].player is not None:
+                return False
+        case 'RIGHT':
+            if curr_col + 1 > board_length - 1 or board[curr_row][curr_col + 1].player is not None:
+                return False
+    return True
+
+
+def move_player(player, movement, board) -> None:
+    old_row, old_col = player.row, player.col
+    match movement:
+        case 'UP': player.row -= 1
+        case 'DOWN': player.row += 1
+        case 'LEFT': player.col -= 1
+        case 'RIGHT': player.col += 1
     player.save()
 
-    # Fetch the current state of the game board
-    board = get_current_board_state()
-
-    # Clear the old position and update new position on the board
-    board[curr_row][curr_col].player = None
+    board[old_row][old_col].player = None
     board[player.row][player.col].player = player
     save_board_state(board)
+
+
+def collect_treasure(player, board) -> None:
+    treasure = board[player.row][player.col].value
+    if treasure > 0:
+        player.score += treasure
+        player.save()
+        board[player.row][player.col].value = 0
+
+    save_board_state(board)
+
+
+@transaction.atomic
+def attempt_to_move_player(request):
+    player = Player.objects.get(name=request.POST.get('player_name'))
+    movement = request.POST.get('direction')
+    board = get_current_board_state()
+
+    if validate_movement(player, movement, board):
+        move_player(player, movement, board)
+        collect_treasure(player, board)
 
     return display_and_play_game(request, player.name)
 
 
-
-
-
-""" ------------- Displaying the Game-Board -------------- """
 
 
 
