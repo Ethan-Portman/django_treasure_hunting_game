@@ -1,16 +1,5 @@
 from django.db import models
 
-# Create your models here.
-
-"""
-Contains the Data Models (Database Tables)
-  - These must be registered in admin.py
-
-Models in Django are essentially classes that are mapped to database tables
-    1. Update Models.py file to contain a python-based description of database tables
-    2. Update admin.py so that is is possible to access Player table from the admin panel
-    3. Create/ execute a database migration script
-"""
 
 class Player(models.Model):
     name = models.CharField(max_length=10, default="unknown")
@@ -45,7 +34,3 @@ class Board(models.Model):
             return '$'
         else:
             return str(self.label)
-
-
-
-

@@ -1,7 +1,21 @@
-board_length = 10
-num_treasures = 5
-min_treasure = 0
-max_treasure = 10
-num_players = 2
-player_one_name = '1'
-player_two_name = '2'
+BOARD_LENGTH = 10
+
+NUM_TREASURES = 5
+
+MIN_TREASURE = 0
+
+MAX_TREASURE = 10
+
+NUM_PLAYERS = 2
+
+PLAYER_ONE_NAME = '1'
+
+PLAYER_TWO_NAME = '2'
+
+up = 'UP'
+
+DOWN = 'DOWN'
+
+LEFT = 'LEFT'
+
+RIGHT = 'RIGHT'
