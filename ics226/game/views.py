@@ -4,10 +4,11 @@ from django.http import HttpResponse, HttpResponseRedirect
 from .models import Board, Player
 from django.db import transaction
 from random import randint
-from .constants import BOARD_LENGTH, NUM_TREASURES, MIN_TREASURE, MAX_TREASURE, NUM_PLAYERS, PLAYER_ONE_NAME, PLAYER_TWO_NAME, up, DOWN, LEFT, RIGHT
+from .constants import BOARD_LENGTH, NUM_TREASURES, MIN_TREASURE, MAX_TREASURE, NUM_PLAYERS, PLAYER_ONE_NAME, PLAYER_TWO_NAME, UP, DOWN, LEFT, RIGHT
 
 
 """----------------- Create the Game-board -----------------"""
+
 
 def create_grid() -> None:
     """
@@ -34,12 +35,15 @@ def get_tile_free_of_treasure_and_player() -> Board:
 
 def populate_grid_with_treasure() -> None:
     """
-    Populates the game grid with a specified number of treasures.
+    Populates the game grid with a specified number of treasures at random tiles.
     """
-    for _ in range(NUM_TREASURES):
+    treasure_tiles = [tile for row in get_current_board_state() for tile in row if tile.value > 0]
+
+    while len(treasure_tiles) < NUM_TREASURES:
         tile = get_tile_free_of_treasure_and_player()
         tile.value = randint(MIN_TREASURE, MAX_TREASURE)
         tile.save()
+        treasure_tiles = [tile for row in get_current_board_state() for tile in row if tile.value > 0]
 
 
 def populate_grid_with_players() -> None:
@@ -63,13 +67,13 @@ def create_game(request) -> HttpResponse:
     :param request: The HTTP Request Object.
     :return HttpResponse redirecting to the game url.
     """
-    Board.objects.select_for_update().all().delete()  # Delete previous Game
+    Board.objects.select_for_update().all().delete()   # Delete previous Game
     Player.objects.select_for_update().all().delete()  # Delete previous Players
 
-    create_grid()
-    populate_grid_with_treasure()
-    populate_grid_with_players()
-    return HttpResponseRedirect(redirect_to='/game/')
+    create_grid()                                       # Create the Grid
+    populate_grid_with_treasure()                       # Fill grid with Treasure
+    populate_grid_with_players()                        # Fill grid with Players
+    return HttpResponseRedirect(redirect_to='/game/')   # Redirect to select player screen
 
 
 """-------------------- User Interface --------------------"""
@@ -114,7 +118,6 @@ def display_and_play_game(request, name):
     return render(request, 'game/play_game.html', context)
 
 
-
 """ ------------------ Moving a Player ------------------- """
 
 
@@ -128,20 +131,17 @@ def validate_movement(player, direction, board) -> bool:
     """
     curr_row, curr_col = player.row, player.col
 
-    if direction == 'UP':
-        curr_row -= 1
-    elif direction == 'DOWN':
-        curr_row += 1
-    elif direction == 'LEFT':
-        curr_col -= 1
-    elif direction == 'RIGHT':
-        curr_col += 1
+    match direction:
+        case 'UP': curr_row -= 1
+        case 'DOWN': curr_row += 1
+        case 'LEFT': curr_col -= 1
+        case 'RIGHT': curr_col += 1
 
-    if 0 <= curr_row < BOARD_LENGTH :
-        if 0 <= curr_col < BOARD_LENGTH:
-            if board[curr_row][curr_col].player is None:
-                return True
-    return False
+    return (
+        0 <= curr_row < BOARD_LENGTH and
+        0 <= curr_col < BOARD_LENGTH and
+        board[curr_row][curr_col].player is None
+    )
 
 
 def move_player(player, movement, board) -> None:
@@ -153,15 +153,11 @@ def move_player(player, movement, board) -> None:
     """
     old_row, old_col = player.row, player.col
 
-    if movement == 'UP':
-        player.row -= 1
-    elif movement == 'DOWN':
-        player.row += 1
-    elif movement == 'LEFT':
-        player.col -= 1
-    elif movement == 'RIGHT':
-        player.col += 1
-
+    match movement:
+        case 'UP': player.row -= 1
+        case 'DOWN': player.row += 1
+        case 'LEFT': player.col -= 1
+        case 'RIGHT': player.col += 1
     player.save()
 
     # Update player positions on the board
@@ -210,12 +206,3 @@ def attempt_to_move_player(request) -> HttpResponse:
 
     # Redirect to the 'display_and_play_game' view with the updated player state
     return redirect('game:display_and_play_game', name=player_name)
-
-
-
-
-
-
-
-
-
