@@ -67,13 +67,16 @@ class GameplayTestCase(TestCase):
         self.assertEqual(player2.col, 9)
         self.assertEqual(player2.row, 9)
 
-    def collect_all_treasure_and_clear_treasure(self):
-        for i in range(BOARD_LENGTH):
-            for j in range(BOARD_LENGTH):
+    def test_collect_all_treasure_and_clear_treasure(self):
+        for i in range(BOARD_LENGTH + 2):
+            for j in range(BOARD_LENGTH + 2):
                 url = reverse('game:attempt_to_move_player')
-                self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'RIGHT'})
+                self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'RIGHT'})  # Move all the way to the right
             url = reverse('game:attempt_to_move_player')
-            self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'DOWN'})
+            self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'DOWN'})       # Move down one
+            for k in range(BOARD_LENGTH + 2):
+                url = reverse('game:attempt_to_move_player')
+                self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'LEFT'})   # Move all the way to the left
 
         # Assert the player has picked up some treasure
         player1 = Player.objects.select_for_update().get(name=PLAYER_ONE_NAME)
