@@ -11,4 +11,4 @@ django = "*"
 
 [requires]
 python_version = "3.11"
-python_full_version = "3.11.0"
+# python_full_version = "3.11.0"
