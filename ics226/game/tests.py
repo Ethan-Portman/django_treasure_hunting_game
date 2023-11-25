@@ -67,13 +67,6 @@ class GameplayTestCase(TestCase):
         self.assertEqual(player2.col, 9)
         self.assertEqual(player2.row, 9)
 
-    def print_board_state(self, board_state):
-        for row in board_state:
-            for tile in row:
-                print(str(tile), end=' ')
-            print('\n')
-
-
 
     def test_collect_all_treasure_and_clear_treasure(self):
         for i in range(BOARD_LENGTH):
