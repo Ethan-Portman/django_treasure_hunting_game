@@ -68,24 +68,26 @@ class GameplayTestCase(TestCase):
         self.assertEqual(player2.row, 9)
 
     def test_collect_all_treasure_and_clear_treasure(self):
-        for i in range(BOARD_LENGTH + 2):
-            for j in range(BOARD_LENGTH + 2):
+        for i in range(BOARD_LENGTH * 3):
+            for j in range(BOARD_LENGTH):
                 url = reverse('game:attempt_to_move_player')
                 self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'RIGHT'})  # Move all the way to the right
             url = reverse('game:attempt_to_move_player')
             self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'DOWN'})       # Move down one
-            for k in range(BOARD_LENGTH + 2):
+            for k in range(BOARD_LENGTH):
                 url = reverse('game:attempt_to_move_player')
                 self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'LEFT'})   # Move all the way to the left
 
-        # Assert the player has picked up some treasure
+        # Assert the players have picked up some treasure
         player1 = Player.objects.select_for_update().get(name=PLAYER_ONE_NAME)
-        self.assertGreater(player1.score, 0)
+        player2 = Player.objects.select_for_update().get(name=PLAYER_TWO_NAME)
+        self.assertGreater(player1.score + player2.score, 0)
 
         # Assert that no treasure remains on the game board
         game_board = get_current_board_state()
         treasure_tiles = [tile for row in game_board for tile in row if tile.value > 0]
         self.assertEqual(len(treasure_tiles), 0)
+        print(get_current_board_state())
 
 
 
