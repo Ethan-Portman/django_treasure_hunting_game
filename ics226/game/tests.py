@@ -44,17 +44,14 @@ class GameplayTestCase(TestCase):
         self.assertRedirects(response, expected_redirect_url)
 
     def test_move_players_to_opposite_ends(self):
+        url = reverse('game:attempt_to_move_player')
         for _ in range(20):
             # Move player 1 UP and LEFT
-            url = reverse('game:attempt_to_move_player')
             self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'UP'})
-            url = reverse('game:attempt_to_move_player')
             self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'LEFT'})
 
             # Move player 2 DOWN and RIGHT
-            url = reverse('game:attempt_to_move_player')
             self.client.post(url, data={'player_name': PLAYER_TWO_NAME, 'direction': 'DOWN'})
-            url = reverse('game:attempt_to_move_player')
             self.client.post(url, data={'player_name': PLAYER_TWO_NAME, 'direction': 'RIGHT'})
 
         # Assert player 1 is at the top left of the board
@@ -69,25 +66,32 @@ class GameplayTestCase(TestCase):
 
 
     def test_collect_all_treasure_and_clear_treasure(self):
-        for i in range(BOARD_LENGTH):
-            for j in range(BOARD_LENGTH):
-                url = reverse('game:attempt_to_move_player')
-                self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'RIGHT'})  # Move all the way to the right
-            url = reverse('game:attempt_to_move_player')
-            self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'DOWN'})       # Move down one
-            for k in range(BOARD_LENGTH):
-                url = reverse('game:attempt_to_move_player')
-                self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'LEFT'})   # Move all the way to the left
+        # Delete Player 2
+        Player.objects.filter(name=PLAYER_TWO_NAME).delete()
+        url = reverse('game:attempt_to_move_player')
 
-        # Assert the players have picked up some treasure
+        # Move Player 1 all the way up and to the left
+        for _ in range(BOARD_LENGTH):
+            self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'UP'})
+            self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'LEFT'})
+
+        # Make Player 1 travel across every tile
+        for _ in range(BOARD_LENGTH):
+            for _ in range(BOARD_LENGTH):
+                self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'RIGHT'})  # Move all the way to the right
+            self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'DOWN'})       # Move down one
+            for _ in range(BOARD_LENGTH):
+                self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'LEFT'})   # Move all the way to the left
+            self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'DOWN'})  # Move down one
+
+        # Assert player 1 has picked up treasure
         player1 = Player.objects.select_for_update().get(name=PLAYER_ONE_NAME)
-        player2 = Player.objects.select_for_update().get(name=PLAYER_TWO_NAME)
-        self.assertGreater(player1.score + player2.score, 0)
+        self.assertGreater(player1.score, 0)
 
         # Assert that no treasure remains on the game board
         game_board = get_current_board_state()
         treasure_tiles = [tile for row in game_board for tile in row if tile.value > 0]
-        self.assertLess(len(treasure_tiles), NUM_TREASURES)
+        self.assertEqual(len(treasure_tiles), 0)
 
 
 
