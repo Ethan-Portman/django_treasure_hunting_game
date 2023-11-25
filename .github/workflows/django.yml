@@ -28,4 +28,4 @@ jobs:
         pipenv install django
     - name: Run Tests
       run: |
-        pipenv run website/manage.py test game
+        pipenv run ics226/manage.py test game
