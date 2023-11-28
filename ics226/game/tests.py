@@ -7,7 +7,7 @@ from django.urls import reverse
 
 class BoardTestCase(TestCase):
     def setUp(self):
-        self.client.get('/game/create/')
+        self.client.post('/game/create/')
 
     def test_correct_number_of_tiles(self):
         tile_count = len(Board.objects.all())
@@ -34,7 +34,7 @@ class BoardTestCase(TestCase):
 
 class GameplayTestCase(TestCase):
     def setUp(self):
-        self.client.get('/game/create/')
+        self.client.post('/game/create/')
 
     def test_redirect_on_movement(self):
         url = reverse('game:attempt_to_move_player')
@@ -66,10 +66,11 @@ class GameplayTestCase(TestCase):
 
 
     def test_collect_all_treasure_and_clear_treasure(self):
+        url = reverse('game:attempt_to_move_player')
+        
         # Delete Player 2
         Player.objects.filter(name=PLAYER_TWO_NAME).delete()
-        url = reverse('game:attempt_to_move_player')
-
+        
         # Move Player 1 all the way up and to the left
         for _ in range(BOARD_LENGTH):
             self.client.post(url, data={'player_name': PLAYER_ONE_NAME, 'direction': 'UP'})
