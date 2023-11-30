@@ -85,7 +85,8 @@ def get_current_board_state() -> [[Board]]:
     the Game-board.
     :return: The 2D Array of Board Objects representing the current state of the game-board.
     """
-    board_state = [[tile for tile in Board.objects.select_for_update().filter(row=i)] for i in range(0, BOARD_LENGTH)]
+    # board_state = [[tile for tile in Board.objects.select_for_update().filter(row=i)] for i in range(0, BOARD_LENGTH)]
+    board_state = [[tile for tile in Board.objects.select_for_update().filter(row=i).order_by('col')] for i in range(0, BOARD_LENGTH)]
     return board_state
 
 
