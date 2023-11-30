@@ -132,7 +132,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 if not DEBUG:
     SECRET_KEY = environ['SECRET_KEY']
 
-    db = config(conn_max_age=600, default='postgresql://postgres:postgres@localhost:5432/website')
+    db = config(conn_max_age=600, default='postgresql://postgres:postgres@localhost:5432/ics226')
     DATABASES['default'] = db
 
     STATIC_ROOT = path.join(BASE_DIR, 'staticfiles')
