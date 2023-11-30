@@ -137,3 +137,5 @@ if not DEBUG:
 
     STATIC_ROOT = path.join(BASE_DIR, 'staticfiles')
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+DEBUG = True
