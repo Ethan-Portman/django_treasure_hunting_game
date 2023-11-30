@@ -129,11 +129,11 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# if not DEBUG:
-SECRET_KEY = environ['SECRET_KEY']
+if not DEBUG:
+    SECRET_KEY = environ['SECRET_KEY']
 
-db = config(conn_max_age=600, default='postgresql://postgres:postgres@localhost:5432/ics226')
-DATABASES['default'] = db
+    db = config(conn_max_age=600, default='postgresql://postgres:postgres@localhost:5432/ics226')
+    DATABASES['default'] = db
 
-STATIC_ROOT = path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATIC_ROOT = path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
