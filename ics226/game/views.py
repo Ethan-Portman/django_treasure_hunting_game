@@ -103,6 +103,7 @@ def display(request) -> HttpResponse:
     return render(request, 'game/game_board.html', context)
 
 
+@transaction.atomic
 def display_and_play_game(request, name):
     """
     Retrieves the game-board and players and renders them onto the screen from the perspective
